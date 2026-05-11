@@ -166,7 +166,36 @@
     <span class="info-chip">24가지 유형</span>
     <span class="info-chip">맞춤 분석 제공</span>
   </div>
-  <button class="btn-primary" onclick="goGrade()">내 PRO 유형 찾기 →</button>
+  <button class="btn-primary" onclick="goInfo()">내 PRO 유형 찾기 →</button>
+</div>
+
+<!-- INFO -->
+<div id="info" class="screen">
+  <div class="kt-logo"><div class="kt-logo-mark">KT</div><span class="kt-logo-text">Professionalism</span></div>
+  <div class="grade-title">참여자 정보를 입력해주세요</div>
+  <div class="grade-sub">이벤트 당첨자 선정에 사용되며<br>다른 용도로는 사용되지 않아요 😊</div>
+  <div style="width:100%;max-width:360px;margin:0 auto 28px;display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <label style="font-size:13px;font-weight:700;color:var(--kt-mid);display:block;margin-bottom:6px;">이름</label>
+      <input id="inputName" type="text" placeholder="이름을 입력해주세요"
+        style="width:100%;padding:16px 18px;border:2px solid var(--kt-border);border-radius:var(--radius);font-family:'Noto Sans KR',sans-serif;font-size:15px;color:var(--kt-dark);outline:none;transition:var(--transition);"
+        oninput="checkInfoForm()"
+        onfocus="this.style.borderColor='var(--kt-dark)'"
+        onblur="this.style.borderColor='var(--kt-border)'">
+    </div>
+    <div>
+      <label style="font-size:13px;font-weight:700;color:var(--kt-mid);display:block;margin-bottom:6px;">전화번호</label>
+      <input id="inputPhone" type="tel" placeholder="010-0000-0000"
+        style="width:100%;padding:16px 18px;border:2px solid var(--kt-border);border-radius:var(--radius);font-family:'Noto Sans KR',sans-serif;font-size:15px;color:var(--kt-dark);outline:none;transition:var(--transition);"
+        oninput="formatPhone(this);checkInfoForm()"
+        onfocus="this.style.borderColor='var(--kt-dark)'"
+        onblur="this.style.borderColor='var(--kt-border)'">
+    </div>
+    <p style="font-size:11px;color:var(--kt-mid);line-height:1.7;margin-top:2px;">
+      입력하신 정보는 이벤트 당첨자 선정 외에 활용되지 않습니다.
+    </p>
+  </div>
+  <button class="btn-primary" id="btnInfoNext" onclick="goGrade()" style="opacity:.35;pointer-events:none;">다음 →</button>
 </div>
 
 <!-- GRADE -->
@@ -532,14 +561,38 @@ const QUESTIONS=[
 // ════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════
-let current=0,answers=new Array(12).fill(null),selectedGrade=null,result=null;
+let current=0,answers=new Array(12).fill(null),selectedGrade=null,result=null,userName='',userPhone='';
+
+function goInfo(){ showScreen('info'); }
+
+function formatPhone(el){
+  let v = el.value.replace(/\D/g,'');
+  if(v.length<=3) el.value=v;
+  else if(v.length<=7) el.value=v.slice(0,3)+'-'+v.slice(3);
+  else el.value=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+}
+
+function checkInfoForm(){
+  const name = document.getElementById('inputName').value.trim();
+  const phone = document.getElementById('inputPhone').value.replace(/\D/g,'');
+  const btn = document.getElementById('btnInfoNext');
+  if(name.length >= 2 && phone.length >= 10){
+    btn.style.opacity='1'; btn.style.pointerEvents='auto';
+  } else {
+    btn.style.opacity='.35'; btn.style.pointerEvents='none';
+  }
+}
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
 }
-function goGrade(){showScreen('grade');}
+function goGrade(){
+  userName = document.getElementById('inputName').value.trim();
+  userPhone = document.getElementById('inputPhone').value.trim();
+  showScreen('grade');
+}
 function selectGrade(g,el){
   selectedGrade=g;
   document.querySelectorAll('.grade-card').forEach(c=>c.classList.remove('selected'));
@@ -746,6 +799,10 @@ function restart(){
   current=0;answers=new Array(12).fill(null);selectedGrade=null;result=null;
   document.querySelectorAll('.grade-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('btnGradeNext').classList.remove('enabled');
+  document.getElementById('inputName').value='';
+  document.getElementById('inputPhone').value='';
+  document.getElementById('btnInfoNext').style.opacity='.35';
+  document.getElementById('btnInfoNext').style.pointerEvents='none';
   showScreen('intro');
 }
 </script>
