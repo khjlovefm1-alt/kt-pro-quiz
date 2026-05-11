@@ -705,6 +705,8 @@ function showResult(){
   // 타이핑 효과로 맞춤 멘트 출력
   const ment=MENTS[result.key]?.[selectedGrade]||'';
   typeText(document.getElementById('aiText'),ment);
+  // Google Sheets 기록
+  saveToSheet(vWin, sWin, eWin, pro);
 }
 
 function typeText(el,text){
@@ -795,6 +797,26 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);
   ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
 }
+function saveToSheet(vWin, sWin, eWin, pro){
+  const SHEET_URL='https://script.google.com/macros/s/AKfycbzvsX0KrJxrl6emz_pZcK_aDowkr8gZDizDQDjlAsNKw_b-HBYnpQ2lrNLglgpvLacA/exec';
+  const gradeLabel=GRADE_MAP[selectedGrade];
+  const payload={
+    name: userName,
+    phone: userPhone,
+    grade: gradeLabel,
+    proName: pro.name,
+    value: VALUES[vWin].label,
+    style: STYLES[sWin].label,
+    energy: ENERGIES[eWin].label
+  };
+  fetch(SHEET_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).catch(()=>{});
+}
+
 function restart(){
   current=0;answers=new Array(12).fill(null);selectedGrade=null;result=null;
   document.querySelectorAll('.grade-card').forEach(c=>c.classList.remove('selected'));
